@@ -1,0 +1,9 @@
+grammar software.amazon.ionxtext.Ion with org.eclipse.xtext.common.Terminals
+
+generate ion "http://www.amazon.software/ionxtext/Ion"
+
+Model:
+	greetings+=Greeting*;
+	
+Greeting:
+	'Hello' name=ID '!';
