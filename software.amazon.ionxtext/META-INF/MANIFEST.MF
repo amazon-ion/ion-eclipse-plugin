@@ -7,5 +7,20 @@ Bundle-SymbolicName: software.amazon.ionxtext; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext,
  org.eclipse.xtext.xbase,
- org.eclipse.equinox.common;bundle-version="3.5.0"
+ org.eclipse.equinox.common;bundle-version="3.5.0",
+ org.eclipse.emf.ecore,
+ org.antlr.runtime,
+ org.eclipse.xtext.util,
+ org.eclipse.xtend.lib,
+ org.eclipse.emf.common,
+ org.eclipse.xtext.xbase.lib
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: software.amazon.ionxtext,
+ software.amazon.ionxtext.ion.util,
+ software.amazon.ionxtext.parser.antlr,
+ software.amazon.ionxtext.services,
+ software.amazon.ionxtext.ion.impl,
+ software.amazon.ionxtext.ion,
+ software.amazon.ionxtext.parser.antlr.internal,
+ software.amazon.ionxtext.serializer
+Import-Package: org.apache.log4j

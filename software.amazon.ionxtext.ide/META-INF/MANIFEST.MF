@@ -9,3 +9,6 @@ Require-Bundle: software.amazon.ionxtext,
  org.eclipse.xtext.ide,
  org.eclipse.xtext.xbase.ide
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: software.amazon.ionxtext.ide.contentassist.antlr.internal,
+ software.amazon.ionxtext.ide.contentassist.antlr
+
