@@ -16,6 +16,7 @@ file `Ion.xtext`.
     * Be sure to do this from the `software.amazon.ionxtext` subproject, not
       from the parent project.
   * Select `GenerateIon.mwe2` and **Run As... | MWE2 Workflow**.
+  * You may need to clean all projects to eliminate errors.
 
 == Dependency Problems? ==
 
