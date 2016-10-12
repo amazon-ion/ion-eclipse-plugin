@@ -12,7 +12,9 @@ Require-Bundle: software.amazon.ionxtext,
  org.eclipse.xtext.xbase.lib
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: software.amazon.ionxtext.tests
-Import-Package: org.hamcrest.core,
+Import-Package: org.apache.commons.logging,
+ org.apache.log4j,
+ org.hamcrest.core,
  org.junit;version="4.5.0",
  org.junit.runners.model;version="4.5.0",
  org.junit.runner;version="4.5.0",

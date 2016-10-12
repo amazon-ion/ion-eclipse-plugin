@@ -10,6 +10,8 @@ project, you'll need to generate this code manually. You'll also need to do
 this when you modify various core resources such as the grammar definition
 file `Ion.xtext`.
 
+  * Go to **Preferences | Plug-in Development | Target Platform** and select 
+    `software.amazon.ionxtext.target`.
   * Browse to folder `software.amazon.ionxtext/software/amazon/ionxtext`.
     * Be sure to do this from the `software.amazon.ionxtext` subproject, not
       from the parent project.
@@ -18,6 +20,5 @@ file `Ion.xtext`.
 == Dependency Problems? ==
 
 If Eclipse is unable to resolve required plugin bundles, you may have a mangled
-target platform definition.
-
-See **Preferences | Plug-in Development | Target Platform**.
+target platform definition. Go to **Preferences | Plug-in Development | 
+Target Platform** and select `software.amazon.ionxtext.target`.
