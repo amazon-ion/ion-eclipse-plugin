@@ -36,17 +36,11 @@ import software.amazon.ionxtext.tests.UnitTestUtils.And;
 import software.amazon.ionxtext.tests.UnitTestUtils.FileIsNot;
 
 /**
- * Perform tests on the good Ion text files. The folder containing the files to
- * test are defined in the constructor. We utilize a unit testing framework to
- * perform Xtext grammar testing. More info about the framework:
- * http://code.google.com/a/eclipselabs.org/p/xtext-utils/wiki/Unit_Testing
- *
- * @author jmma
- *
+ * Tests the Xtext grammar of Ion by parsing all of the ion-tests data files.
  */
 @RunWith(XtextRunner2.class)
 @InjectWith(IonInjectorProvider.class)
-public class GoodModelTest
+public class IonTestsParsingTest
     extends XtextTest
 {
     public static final FilenameFilter GOOD_SKIP_LIST =
@@ -218,14 +212,20 @@ public class GoodModelTest
         );
 
 
-    /**
-     * Constructor - Define the folder to search for test files
-     */
-    public GoodModelTest()
+    public IonTestsParsingTest()
         throws Exception
     {
-        // Declare the resourceRoot to IonTests test data locally
+        // Have the framework load files relative to the project root.
         super("file:/" + new File(".").getAbsolutePath());
+    }
+
+    /**
+     * Returns the expected type of the root element of the data files.
+     */
+    @Override
+    protected Class<? extends EObject> getRootObjectType(final URI uri)
+    {
+        return Datagram.class;
     }
 
     @Test
@@ -270,15 +270,5 @@ public class GoodModelTest
 
             fail("Expected file to have errors: " + file);
         }
-    }
-
-
-    /**
-     * Returns the expected type of the root element of the given resource.
-     */
-    @Override
-	protected Class<? extends EObject> getRootObjectType(final URI uri)
-    {
-        return Datagram.class;
     }
 }

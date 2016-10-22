@@ -15,6 +15,8 @@
 
 package software.amazon.ionxtext.tests;
 
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
@@ -62,6 +64,7 @@ public class UnitTestUtils
 
         public And(FilenameFilter... filters) { myFilters = filters; }
 
+        @Override
         public boolean accept(File dir, String name)
         {
             for (FilenameFilter filter : myFilters)
@@ -97,6 +100,7 @@ public class UnitTestUtils
          */
         public FileIsNot(String... filesToSkip) { mySkips = filesToSkip; }
 
+        @Override
         public boolean accept(File dir, String name)
         {
             for (String skip : mySkips)
@@ -140,7 +144,7 @@ public class UnitTestUtils
         File dir = getTestdataFile(folderName);
 
         if (!dir.isDirectory()) {
-            org.junit.Assert.fail(dir.getAbsolutePath() + " is not a directory");
+            fail(dir.getAbsolutePath() + " is not a directory");
         }
 
         for (File f : dir.listFiles(filter)) {
