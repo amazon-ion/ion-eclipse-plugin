@@ -1,5 +1,4 @@
-/*
- * Copyright 2012-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+/* Copyright 2012-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -28,24 +27,24 @@ Datagram:
 ;
 
 Value:
-      {Null} annot+=Annotation* value=Null_value
-    | {Bool} annot+=Annotation* value=Bool_value
-    | {Int} annot+=Annotation* value=Int_value
-    | {Float} annot+=Annotation* value=Float_value
-    | {Decimal} annot+=Annotation* value=Decimal_value
+      {Null}      annot+=Annotation* value=Null_value
+    | {Bool}      annot+=Annotation* value=Bool_value
+    | {Int}       annot+=Annotation* value=Int_value
+    | {Float}     annot+=Annotation* value=Float_value
+    | {Decimal}   annot+=Annotation* value=Decimal_value
     | {Timestamp} annot+=Annotation* value=Timestamp_value
-    | {Symbol} annot+=Annotation* value=Symbol_value
-    | {String} annot+=Annotation* value=String_value
-    | {Clob} annot+=Annotation* value=Clob_value
-    | {Blob} annot+=Annotation* value=Blob_value
+    | {Symbol}    annot+=Annotation* value=Symbol_value
+    | {String}    annot+=Annotation* value=String_value
+    | {Clob}      annot+=Annotation* value=Clob_value
+    | {Blob}      annot+=Annotation* value=Blob_value
     | Struct
     | List
     | Sexp
-    | {BadInt} BAD_INT
-    | {BadFloat} BAD_FLOAT
-    | {BadDecimal} BAD_DECIMAL
-    | {BadTimestamp} BAD_TIMESTAMP
-    | {BadNulltype} BAD_NULLTYPE
+    | {BadInt}       content=BAD_INT
+    | {BadFloat}     content=BAD_FLOAT
+    | {BadDecimal}   content=BAD_DECIMAL
+    | {BadTimestamp} content=BAD_TIMESTAMP
+    | {BadNulltype}  content=BAD_NULLTYPE
 ;
 
 Null_value:
@@ -383,6 +382,7 @@ BAD_NULLTYPE:
     'null.' (IDENTIFIER)
 ;
 
+// TODO Trap invalid leading zeroes, eg 0123
 terminal
 BAD_INT:
     INT (IDENTIFIER | INT | '/')

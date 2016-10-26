@@ -43,7 +43,7 @@ Workflow {
             fragment = serializer.SerializerFragment2 {}
             fragment = resourceFactory.ResourceFactoryFragment2 {}
             fragment = parser.antlr.XtextAntlrGeneratorFragment2 {}
-//          fragment = validation.ValidatorFragment2 {}
+            fragment = validation.ValidatorFragment2 {}
 //          fragment = scoping.ImportNamespacesScopingFragment2 {}
 //          fragment = exporting.QualifiedNamesFragment2 {}
 //          fragment = builder.BuilderIntegrationFragment2 {}

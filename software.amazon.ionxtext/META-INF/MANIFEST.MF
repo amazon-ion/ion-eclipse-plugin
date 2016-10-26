@@ -22,5 +22,6 @@ Export-Package: software.amazon.ionxtext,
  software.amazon.ionxtext.ion.impl,
  software.amazon.ionxtext.ion,
  software.amazon.ionxtext.parser.antlr.internal,
- software.amazon.ionxtext.serializer
+ software.amazon.ionxtext.serializer,
+ software.amazon.ionxtext.validation
 Import-Package: org.apache.log4j
