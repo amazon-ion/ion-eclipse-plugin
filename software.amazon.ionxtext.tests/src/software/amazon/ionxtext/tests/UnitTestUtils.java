@@ -1,5 +1,4 @@
-/*
- * Copyright 2012-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+/* Copyright 2012-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -19,9 +18,15 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Utility methods for Unit Testing.
@@ -49,14 +54,27 @@ public class UnitTestUtils
     /**
      * Filter to accept only text Ion files.
      */
-    public static final FilenameFilter TEXT_ONLY_FILTER = new FilenameFilter()
+    public static final FilenameFilter IS_ION_TEXT = new FilenameFilter()
     {
         @Override
         public boolean accept(File dir, String name)
         {
-            return name.endsWith(".ion");
+            return name.endsWith(TEXT_FILE_EXTENSION);
         }
     };
+
+    public static final String[] SKIPPED_GOOD_FILES =
+        loadSkipListFrom(IonTestsParsingTest.class, "skipped-good-files.txt");
+
+    public static final FilenameFilter IS_NOT_SKIPPED_GOOD_FILE =
+        new FileIsNot(SKIPPED_GOOD_FILES);
+
+    public static final String[] SKIPPED_BAD_FILES =
+        loadSkipListFrom(IonTestsParsingTest.class, "skipped-bad-files.txt");
+
+    public static final FilenameFilter IS_NOT_SKIPPED_BAD_FILE =
+        new FileIsNot(SKIPPED_BAD_FILES);
+
 
     public static final class And implements FilenameFilter
     {
@@ -223,5 +241,21 @@ public class UnitTestUtils
     public static File[] testdataFiles(String... testdataDirs)
     {
         return testdataFiles(null, testdataDirs);
+    }
+
+    public static String[] loadSkipListFrom(Class<?> klass, String filename)
+    {
+        try
+        {
+            Path path = Paths.get(klass.getResource(filename).toURI());
+            try (Stream<String> lines = Files.lines(path))
+            {
+                return lines.toArray(String[]::new);
+            }
+        }
+        catch (IOException | URISyntaxException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 }
