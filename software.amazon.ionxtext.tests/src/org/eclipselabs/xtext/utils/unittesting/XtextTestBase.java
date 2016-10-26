@@ -182,6 +182,25 @@ public abstract class XtextTestBase {
         return rootElement;
     }
 
+    /**
+     * Processes a given file by loading and (optionally) serializing it.
+     * <p>
+     * The {@link #issues} member is set to a new {@link FluentIssueCollection}
+     * holding the validation issues found in this file. It is generally expected
+     * that all issues are matched by a call to {@link #assertConstraints}; if
+     * there are any unmatched issues when the test completes, {@link #_after()}
+     * will raise an {@link AssertionError}.
+     * <p>
+     * Due to this behavior, it is recommended that this method be called once
+     * per test case, to avoid interference between test files.
+     *
+     * @param fileToTest the file to be loaded and validated.
+     * @param referencedResources other resources referenced from the {@code fileToTest},
+     *   to be loaded first.
+     * @return the collection of {@link Issue}s discovered during model-level validation.
+     * @throws AssertionError if there are any grammar-level errors discovered while
+     *   loading the file. Model-level validation issues do not cause an exception.
+     */
     protected FluentIssueCollection testFile(final String fileToTest,
             final String... referencedResources) {
 
