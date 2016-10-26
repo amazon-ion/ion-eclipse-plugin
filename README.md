@@ -4,7 +4,14 @@
 
 Regardless of whether you use the Oomph installer or the full download, you
 want to install the "Eclipse DSL Tools" product. This includes the Plug-in
-Development Tools (PDT) and Xtext features used by this project.
+Development Tools (PDT) and Xtext features used by this project. The code
+requires Xtext 2.10; that comes standard with Neon but if you're using Mars
+you'll need to update those components.
+
+When you import this project into your Eclipse workbench, be sure to enable
+the **Search for nested projects** option.  Otherwise you'll only get the
+parent project, which only coordinates the build process, and not the numerous
+subprojects that contain the actual plugin code.
 
 ## Building in Eclipse
 
@@ -16,6 +23,8 @@ project, you'll need to generate this code manually.
   * From the `software.amazon.ionxtext` subproject (not the parent project), 
     browse to `src/software/amazon/ionxtext`. Select `GenerateIon.mwe2` and 
     **Run As | MWE2 Workflow**.
+  * You'll probably get an error indicating that problems exist in the project,
+    but that's because you've not yet generated necessary code, so proceed.
   * You may need to clean all projects to eliminate errors.
 
 You'll also need to do this when you modify various core resources such as the 
@@ -34,3 +43,7 @@ Target Platform** and select `software.amazon.ionxtext.target`.
   * Right-click on the `ionxtext.tests` project and **Run As | JUnit Test**.
   * Recommended to mark the resulting Run Configuration as a favorite for easy
     access at all times.
+
+## Running in a child Eclipse instance
+
+  * Right-click on the `ionxtext` project and **Run As | Eclipse Application**.
