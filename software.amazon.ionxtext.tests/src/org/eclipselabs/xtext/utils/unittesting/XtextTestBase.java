@@ -1,5 +1,6 @@
 package org.eclipselabs.xtext.utils.unittesting;
 
+import static org.eclipselabs.xtext.utils.unittesting.FluentIssueCollection.getIssueSummary;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -632,10 +633,12 @@ public abstract class XtextTestBase {
     }
 
     private void dumpUnassertedIssues() {
-        if (issues.except(assertedIssues).getIssues().size() > 0) {
+        final FluentIssueCollection unassertedIssues =
+            issues.except(assertedIssues);
+        if (unassertedIssues.getIssues().size() > 0) {
             LOGGER.warn("---- Unasserted Issues ----");
-            for (final Issue issue : issues.except(assertedIssues)) {
-                FluentIssueCollection.dumpIssue(issues.getResource(), issue);
+            for (final Issue issue : unassertedIssues) {
+                LOGGER.warn(getIssueSummary(issues.getResource(), issue));
             }
         }
     }
