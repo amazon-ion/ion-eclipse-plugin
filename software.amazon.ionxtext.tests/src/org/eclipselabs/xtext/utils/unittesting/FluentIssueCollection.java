@@ -244,6 +244,22 @@ public class FluentIssueCollection implements Iterable<Issue> {
         return this;
     }
 
+    /**
+     * Checks that this collection has at least one issue. This is useful when you know
+     * a resource has some problems, but you don't know exactly how many.
+     *
+     * @return this object.
+     */
+    public FluentIssueCollection isNotEmpty() {
+        if (! issues.isEmpty()) {
+            reportOk();
+        } else {
+            addMessage("failed isNotEmpty");
+            reportError();
+        }
+        return this;
+    }
+
     public FluentIssueCollection oneOfThemContains(final String substring) {
         boolean found = false;
         for (final Issue i : issues) {
