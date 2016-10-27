@@ -30,6 +30,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.junit4.InjectWith;
 import org.eclipselabs.xtext.utils.unittesting.XtextRunner2;
 import org.eclipselabs.xtext.utils.unittesting.XtextTest;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -60,12 +61,16 @@ public class IonTestsParsingTest
         return Datagram.class;
     }
 
-    @Test
-    public void goodFilesParseSuccessfully()
+    @Before
+    public void ignoreSerializationIssues()
     {
         ignoreSerializationDifferences();
         ignoreFormattingDifferences();
+    }
 
+    @Test
+    public void goodFilesParseSuccessfully()
+    {
         File[] fileNames = testdataFiles(new And(IS_ION_TEXT,
                                                  IS_NOT_SKIPPED_GOOD_FILE),
                                          "good");
@@ -80,9 +85,6 @@ public class IonTestsParsingTest
     @Test
     public void badFilesParseUnsuccessfully()
     {
-        ignoreSerializationDifferences();
-        ignoreFormattingDifferences();
-
         File[] fileNames = testdataFiles(new And(IS_ION_TEXT,
                                                  IS_NOT_SKIPPED_BAD_FILE),
                                          "bad");
@@ -98,9 +100,6 @@ public class IonTestsParsingTest
     @Test
     public void skippedGoodFilesParseUnsuccessfully()
     {
-        ignoreSerializationDifferences();
-        ignoreFormattingDifferences();
-
         File dir = getTestdataFile("good");
         for (String filename : SKIPPED_GOOD_FILES)
         {
@@ -112,9 +111,6 @@ public class IonTestsParsingTest
     @Test
     public void skippedBadFilesParseSuccessfully()
     {
-        ignoreSerializationDifferences();
-        ignoreFormattingDifferences();
-
         File dir = getTestdataFile("bad");
         for (String filename : SKIPPED_BAD_FILES)
         {
