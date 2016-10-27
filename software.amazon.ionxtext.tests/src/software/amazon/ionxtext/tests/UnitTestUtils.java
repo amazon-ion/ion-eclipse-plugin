@@ -16,13 +16,14 @@ package software.amazon.ionxtext.tests;
 
 import static org.junit.Assert.fail;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -245,15 +246,18 @@ public class UnitTestUtils
 
     public static String[] loadSkipListFrom(Class<?> klass, String filename)
     {
-        try
+        // The URL->InputStream->Reader approach is required to make this work
+        // inside OSGi as well as outside.  We can't assume that files exist
+        // for this data, they may be inside a Jar bundle.
+        URL url = klass.getResource(filename);
+        try (InputStream in = url.openStream();
+             Reader r = new InputStreamReader(in);
+             BufferedReader br = new BufferedReader(r);
+             Stream<String> lines = br.lines())
         {
-            Path path = Paths.get(klass.getResource(filename).toURI());
-            try (Stream<String> lines = Files.lines(path))
-            {
-                return lines.toArray(String[]::new);
-            }
+            return lines.toArray(String[]::new);
         }
-        catch (IOException | URISyntaxException e)
+        catch (IOException e)
         {
             throw new RuntimeException(e);
         }
