@@ -235,11 +235,11 @@ public class FluentIssueCollection implements Iterable<Issue> {
 
     public FluentIssueCollection sizeIs(final int i) {
         if (issues.size() == i) {
-            state = true;
+            reportOk();
         } else {
             addMessage(
                     "failed size: expected " + i + ", actual " + issues.size());
-            state = false;
+            reportError();
         }
         return this;
     }
