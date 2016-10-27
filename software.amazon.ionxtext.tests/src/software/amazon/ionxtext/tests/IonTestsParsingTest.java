@@ -14,10 +14,12 @@
 
 package software.amazon.ionxtext.tests;
 
-import static org.junit.Assert.fail;
 import static software.amazon.ionxtext.tests.UnitTestUtils.IS_ION_TEXT;
 import static software.amazon.ionxtext.tests.UnitTestUtils.IS_NOT_SKIPPED_BAD_FILE;
 import static software.amazon.ionxtext.tests.UnitTestUtils.IS_NOT_SKIPPED_GOOD_FILE;
+import static software.amazon.ionxtext.tests.UnitTestUtils.SKIPPED_BAD_FILES;
+import static software.amazon.ionxtext.tests.UnitTestUtils.SKIPPED_GOOD_FILES;
+import static software.amazon.ionxtext.tests.UnitTestUtils.getTestdataFile;
 import static software.amazon.ionxtext.tests.UnitTestUtils.testdataFiles;
 
 import java.io.File;
@@ -71,10 +73,9 @@ public class IonTestsParsingTest
 
         for (File file : fileNames)
         {
-            testFile(file.getPath());
+            parseSuccessfully(file);
         }
     }
-
 
     @Test
     public void badFilesParseUnsuccessfully()
@@ -89,16 +90,65 @@ public class IonTestsParsingTest
 
         for (File file : fileNames)
         {
-            try
-            {
-                testFile(file.getPath());
-            }
-            catch (AssertionError e)
-            {
-                continue;
-            }
-
-            fail("Expected file to have errors: " + file);
+            parseUnsuccessfully(file);
         }
+    }
+
+
+    @Test
+    public void skippedGoodFilesParseUnsuccessfully()
+    {
+        ignoreSerializationDifferences();
+        ignoreFormattingDifferences();
+
+        File dir = getTestdataFile("good");
+        for (String filename : SKIPPED_GOOD_FILES)
+        {
+            File file = new File(dir, filename);
+            parseUnsuccessfully(file);
+        }
+    }
+
+    @Test
+    public void skippedBadFilesParseSuccessfully()
+    {
+        ignoreSerializationDifferences();
+        ignoreFormattingDifferences();
+
+        File dir = getTestdataFile("bad");
+        for (String filename : SKIPPED_BAD_FILES)
+        {
+            File file = new File(dir, filename);
+            parseSuccessfully(file);
+        }
+    }
+
+    //=========================================================================
+
+    private void parseSuccessfully(File file)
+    {
+        testFile(file.getPath());
+
+        assertConstraints(file.toString(),
+                          issues.errorsOnly().sizeIs(0));
+    }
+
+    private void parseUnsuccessfully(File file)
+    {
+        try
+        {
+            // Grammar-level errors cause this to throw AssertionError.
+            // Model level errors found by {@class IonValidator} don't throw!
+            testFile(file.getPath());
+        }
+        catch (AssertionError e)
+        {
+            return;
+        }
+
+        // We don't know what the errors will be, just that there should be
+        // at least one.
+        assertConstraints(file.toString(),
+                          issues.errorsOnly().isNotEmpty());
     }
 }
