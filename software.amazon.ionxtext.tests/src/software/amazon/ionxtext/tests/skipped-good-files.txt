@@ -1,5 +1,4 @@
 blank.ion
-decimalsWithUnderscores.ion
 empty.ion
 eolCommentCr.ion
 intsWithUnderscores.ion

@@ -205,16 +205,21 @@ INT:
 
 terminal
 FLOAT:
-     '-'? LEADING_DIGITS ('.' ('0'..'9')* )? ('E' | 'F' | 'e' | 'f') ( '+' | '-' )? ('0'..'9')+
+     '-'? DEC_UNSIGNED_INTEGER DEC_FRAC? ('E' | 'F' | 'e' | 'f') ( '+' | '-' )? ('0'..'9')+
   |  'nan'
   |  ( '+' | '-' ) 'inf'
 ;
 
 terminal
 DECIMAL:
-     '-'? LEADING_DIGITS '.' ('0'..'9')*
-  |  '-'? LEADING_DIGITS ('.' ('0'..'9')* )? ('D' | 'd') ( '+' | '-' )? ('0'..'9')+
+     '-'? DEC_UNSIGNED_INTEGER DEC_FRAC
+  |  '-'? DEC_UNSIGNED_INTEGER DEC_FRAC? DECIMAL_EXP
 ;
+
+terminal fragment
+DECIMAL_EXP
+    : ('D' | 'd') PLUS_OR_MINUS? DEC_DIGIT+
+    ;
 
 terminal
 TIMESTAMP:
@@ -443,9 +448,21 @@ NEWLINE_ESCAPE:
 ;
 
 terminal fragment
-LEADING_DIGITS :
-    '0' | '1'..'9' '0'..'9'*
+DEC_UNSIGNED_INTEGER :
+    '0'
+  | '1'..'9' (UNDERSCORE? DEC_DIGIT)*
 ;
+
+terminal fragment
+DEC_FRAC
+    : '.'
+    | '.' DEC_DIGIT (UNDERSCORE? DEC_DIGIT)*
+    ;
+
+terminal fragment
+DEC_DIGIT
+    : '0'..'9'
+    ;
 
 terminal fragment
 TWODIGITS:
@@ -463,6 +480,11 @@ HEXDIGIT:
     | 'a'..'f'
     | 'A'..'F'
 ;
+
+terminal fragment
+PLUS_OR_MINUS
+    : ( '+' | '-' )
+    ;
 
 terminal fragment
 OPERATOR:
@@ -506,3 +528,9 @@ terminal
 SL_COMMENT:
     '//' !('\n'|'\r')* ('\r'? '\n')?
 ;
+
+
+terminal fragment
+UNDERSCORE
+    : '_'
+    ;
