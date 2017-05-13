@@ -257,24 +257,6 @@ TRIPLEQUOTEDSTRING:
     "'''"
 ;
 
-terminal fragment
-DOUBLEQUOTEDCLOB:
-    '"' ( NEWLINE_ESCAPE | CLOB_ESCAPE | DOUBLEQUOTED_CLOBCHAR )* '"'
-;
-
-terminal fragment
-TRIPLEQUOTEDCLOB:
-    "'''"
-    ( CLOB_ESCAPE | TRIPLEQUOTED_CLOBCHAR | JUST_ONEQUOTE_CLOB | JUST_TWOQUOTE_CLOB )*
-    "'''"
-;
-
-terminal
-CLOB:
-    '{{' WS* DOUBLEQUOTEDCLOB WS* '}}'
-  | '{{' WS* (TRIPLEQUOTEDCLOB WS*)+ '}}'
-;
-
 terminal
 OP:
     OPERATOR+
@@ -285,6 +267,7 @@ IDENTIFIER:
     ( '$' | '_' | 'A'..'Z' | 'a'..'z' )  ( '$' | '_' | 'A'..'Z' | 'a'..'z' | '0'..'9' )*
 ;
 
+// TODO This is obsolete, remove it.
 terminal fragment
 DOUBLEQUOTED_CLOBCHAR:
       '\u0020'..'\u0021'
@@ -293,19 +276,6 @@ DOUBLEQUOTED_CLOBCHAR:
     // skip \u005C - backslash
     | '\u005D'..'\u007F'
     // end of ASCII
-;
-
-terminal fragment
-TRIPLEQUOTED_CLOBCHAR:
-      '\u000A'                      // new line
-    | '\u000D'                      // carriage return
-    | '\u0020'..'\u0026'
-    //  we don't skip the singe quote - but we recognize it distinctly
-    | '\u0028'..'\u005B'
-    // skip \u005C - backslash
-    | '\u005D'..'\u007E'
-    // end of ASCII
-    | NEWLINE_ESCAPE
 ;
 
 terminal fragment
@@ -357,16 +327,6 @@ JUST_TWOQUOTE:
     "''" (ESCAPESEQUENCE | TRIPLEQUOTEDCHAR)
 ;
 
-terminal fragment
-JUST_ONEQUOTE_CLOB:
-    "'" (CLOB_ESCAPE | TRIPLEQUOTED_CLOBCHAR)
-;
-
-terminal fragment
-JUST_TWOQUOTE_CLOB:
-    "''" (CLOB_ESCAPE | TRIPLEQUOTED_CLOBCHAR)
-;
-
 // === Detect bad tokens and treat them as errors in IonJavaValidation ===
 terminal
 BAD_NULLTYPE:
@@ -395,10 +355,6 @@ BAD_TIMESTAMP:
 ;
 // =========================
 
-terminal fragment
-CLOB_ESCAPE:
-    COMMON_ESCAPE | HEX_ESCAPE
-;
 
 terminal fragment
 ESCAPESEQUENCE:
@@ -407,6 +363,72 @@ ESCAPESEQUENCE:
     | U_ESCAPE
     | UU_ESCAPE
 ;
+
+
+//////////////////////////////////////////////////////////////////////////////
+// Ion CLOB
+//////////////////////////////////////////////////////////////////////////////
+
+terminal
+CLOB
+    : SHORT_QUOTED_CLOB
+    | LONG_QUOTED_CLOB
+    ;
+
+terminal
+SHORT_QUOTED_CLOB
+    : LOB_START WS* SHORT_QUOTE CLOB_SHORT_TEXT SHORT_QUOTE WS* LOB_END
+    ;
+
+// TODO Official grammar is non-greedy (*?) at CLOB_LONG_TEXT
+
+terminal
+LONG_QUOTED_CLOB
+    : LOB_START (WS* LONG_QUOTE CLOB_LONG_TEXT* LONG_QUOTE)+ WS* LOB_END
+    ;
+
+terminal fragment
+CLOB_SHORT_TEXT
+    : (CLOB_ESCAPE | CLOB_SHORT_TEXT_ALLOWED)*
+    ;
+
+terminal fragment
+CLOB_LONG_TEXT
+    : CLOB_LONG_TEXT_NO_QUOTE
+    | '\'' CLOB_LONG_TEXT_NO_QUOTE
+    | '\'\'' CLOB_LONG_TEXT_NO_QUOTE
+    ;
+
+terminal fragment
+CLOB_LONG_TEXT_NO_QUOTE
+    : (CLOB_ESCAPE | CLOB_LONG_TEXT_ALLOWED)
+    ;
+
+// FIXME Old grammar accepted U+007F but new one does not. Missing test?
+
+// non-control ASCII and not double quote or backslash
+terminal fragment
+CLOB_SHORT_TEXT_ALLOWED
+    : '\u0020'..'\u0021' // no U+0022 double quote
+    | '\u0023'..'\u005B' // no U+005C backslash
+    | '\u005D'..'\u007E'
+    ;
+
+// non-control ASCII (newlines are OK)
+terminal fragment
+CLOB_LONG_TEXT_ALLOWED
+    : '\u0020'..'\u0026' // no U+0027 single quote
+    | '\u0028'..'\u005B' // no U+005C blackslash
+    | '\u005D'..'\u007E'
+    | NL
+    ;
+
+terminal fragment
+CLOB_ESCAPE
+    : COMMON_ESCAPE
+    | HEX_ESCAPE
+    | '\\' NL       // FIXME This should be in COMMON_ESCAPE
+    ;
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -461,6 +483,16 @@ LOB_START
 terminal fragment
 LOB_END
     : '}}'
+    ;
+
+terminal fragment
+SHORT_QUOTE
+    : '"'
+    ;
+
+terminal fragment
+LONG_QUOTE
+    : '\'\'\''
     ;
 
 terminal fragment
@@ -577,11 +609,19 @@ terminal
 WS
   :  '\t'
   |  '\n'
-//|  '\u000C' //causes error in xtext TODO
+//|  '\u000B' // FIXME vertical tab
+//|  '\u000C' // FIXME form feed -- causes error in xtext
   |  '\r'
   |  ' '
   |  '\\' ('\r')? '\n'
 ;
+
+terminal fragment
+NL
+    : '\u000D\u000A'  // carriage return + line feed
+    | '\u000D'        // carriage return
+    | '\u000A'        // line feed
+    ;
 
 terminal
 ML_COMMENT:
