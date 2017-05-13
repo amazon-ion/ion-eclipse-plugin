@@ -422,25 +422,10 @@ ESCAPESEQUENCE:
     | UU_ESCAPE
 ;
 
-terminal fragment
-COMMON_ESCAPE:
-    '\\' ('a'|'b'|'t'|'n'|'f'|'r'|'v'|'\"'|'\''|'?'|'/'|'\\'|'0')
-;
 
-terminal fragment
-HEX_ESCAPE:
-    '\\' 'x' HEXDIGIT HEXDIGIT
-;
-
-terminal fragment
-U_ESCAPE:
-    '\\' 'u' HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT
-;
-
-terminal fragment
-UU_ESCAPE:
-    '\\' 'U' HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT
-;
+//////////////////////////////////////////////////////////////////////////////
+// Common Lexical Primitives
+//////////////////////////////////////////////////////////////////////////////
 
 terminal fragment
 NEWLINE_ESCAPE:
@@ -508,6 +493,49 @@ OPERATOR:
   |  '|' // =124
   |  '~' // =126
 ;
+
+terminal fragment
+COMMON_ESCAPE
+    : '\\' COMMON_ESCAPE_CODE
+    ;
+
+terminal fragment
+COMMON_ESCAPE_CODE
+    : 'a'
+    | 'b'
+    | 't'
+    | 'n'
+    | 'f'
+    | 'r'
+    | 'v'
+    | '?'
+    | '0'
+    | '\''
+    | '"'
+    | '/'
+    | '\\'
+//  | NL    // FIXME
+    ;
+
+terminal fragment
+HEX_ESCAPE
+    : '\\' 'x' HEXDIGIT HEXDIGIT
+    ;
+
+terminal fragment
+U_ESCAPE
+    : '\\' 'u' HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT
+    ;
+
+terminal fragment
+UU_ESCAPE
+    : '\\' 'U' HEX_DIGIT_QUARTET HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT
+    ;
+
+terminal fragment
+HEX_DIGIT_QUARTET
+    : HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT
+    ;
 
 terminal
 WS
