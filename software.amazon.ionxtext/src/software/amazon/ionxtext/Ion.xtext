@@ -276,20 +276,6 @@ CLOB:
 ;
 
 terminal
-BLOB:
-    '{{' (WS* BLOBFRAGMENT)* ( WS* '=' (WS* '=' (WS* '=')?)?)? WS* '}}'
-;
-
-terminal fragment
-BLOBFRAGMENT:
-    'A'..'Z'
-  | 'a'..'z'
-  | '0'..'9'
-  | '+'
-  | '/'
-;
-
-terminal
 OP:
     OPERATOR+
 ;
@@ -424,8 +410,58 @@ ESCAPESEQUENCE:
 
 
 //////////////////////////////////////////////////////////////////////////////
+// Ion BLOB
+//////////////////////////////////////////////////////////////////////////////
+
+terminal
+BLOB
+    : LOB_START (BASE_64_QUARTET | WS)* BASE_64_PAD? WS* LOB_END
+    ;
+
+terminal fragment
+BASE_64_PAD
+    : BASE_64_PAD1
+    | BASE_64_PAD2
+    ;
+
+terminal fragment
+BASE_64_QUARTET
+    : BASE_64_CHAR WS* BASE_64_CHAR WS* BASE_64_CHAR WS* BASE_64_CHAR
+    ;
+
+terminal fragment
+BASE_64_PAD1
+    : BASE_64_CHAR WS* BASE_64_CHAR WS* BASE_64_CHAR WS* '='
+    ;
+
+terminal fragment
+BASE_64_PAD2
+    : BASE_64_CHAR WS* BASE_64_CHAR WS* '=' WS* '='
+    ;
+
+terminal fragment
+BASE_64_CHAR
+    : '0'..'9'
+    | 'a'..'z'
+    | 'A'..'Z'
+    | '+'
+    | '/'
+    ;
+
+
+//////////////////////////////////////////////////////////////////////////////
 // Common Lexical Primitives
 //////////////////////////////////////////////////////////////////////////////
+
+terminal fragment
+LOB_START
+    : '{{'
+    ;
+
+terminal fragment
+LOB_END
+    : '}}'
+    ;
 
 terminal fragment
 NEWLINE_ESCAPE:

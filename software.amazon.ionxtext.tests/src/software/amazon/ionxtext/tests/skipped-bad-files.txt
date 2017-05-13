@@ -1,7 +1,3 @@
-blob_1.ion
-blob_12.ion
-blob_3.ion
-blob_4.ion
 decimalWithTerminatingBackslashNL.ion
 floatWithTerminatingBackslashNL.ion
 hexWithTerminatingBackslashNL.ion
