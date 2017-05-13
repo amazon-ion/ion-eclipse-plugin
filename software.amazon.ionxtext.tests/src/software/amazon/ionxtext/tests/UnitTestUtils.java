@@ -44,7 +44,7 @@ public class UnitTestUtils
     {
         if (!ION_TESTS_IONTESTDATA_PATH.exists())
         {
-            throw new RuntimeException("Cannot locate test data directory.");
+            throw new RuntimeException("Cannot locate test data directory. Did you forget to run `git submodule update --init`?");
         }
     }
 
