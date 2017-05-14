@@ -415,7 +415,7 @@ ESCAPESEQUENCE:
 
 terminal
 BLOB
-    : LOB_START (BASE_64_QUARTET | WS)* BASE_64_PAD? WS* LOB_END
+    : LOB_START WS* BASE_64_QUARTET* BASE_64_PAD? LOB_END
     ;
 
 terminal fragment
@@ -426,17 +426,17 @@ BASE_64_PAD
 
 terminal fragment
 BASE_64_QUARTET
-    : BASE_64_CHAR WS* BASE_64_CHAR WS* BASE_64_CHAR WS* BASE_64_CHAR
+    : BASE_64_CHAR WS* BASE_64_CHAR WS* BASE_64_CHAR WS* BASE_64_CHAR WS*
     ;
 
 terminal fragment
 BASE_64_PAD1
-    : BASE_64_CHAR WS* BASE_64_CHAR WS* BASE_64_CHAR WS* '='
+    : BASE_64_CHAR WS* BASE_64_CHAR WS* BASE_64_CHAR WS* '=' WS*
     ;
 
 terminal fragment
 BASE_64_PAD2
-    : BASE_64_CHAR WS* BASE_64_CHAR WS* '=' WS* '='
+    : BASE_64_CHAR WS* BASE_64_CHAR WS* '=' WS* '=' WS*
     ;
 
 terminal fragment
