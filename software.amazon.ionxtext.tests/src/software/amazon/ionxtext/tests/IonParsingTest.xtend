@@ -4,27 +4,61 @@
 package software.amazon.ionxtext.tests
 
 import com.google.inject.Inject
+import org.eclipse.emf.common.util.EList
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner
-import org.eclipse.xtext.junit4.util.ParseHelper
+import org.eclipse.xtext.junit4.util.ResourceHelper
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import software.amazon.ionxtext.ion.Datagram
+import software.amazon.ionxtext.ion.Value
+
+import static org.junit.Assert.assertEquals
+import static org.junit.Assert.fail
+
 
 @RunWith(XtextRunner)
 @InjectWith(IonInjectorProvider)
 class IonParsingTest {
 
     @Inject
-    ParseHelper<Datagram> parseHelper
+    private ResourceHelper resourceHelper
+
 
     @Test
-    def void loadModel() {
-        val result = parseHelper.parse('''
-            "Hello Ion!"
-        ''')
-        Assert.assertNotNull(result)
+    def void parseEmptyLongString()
+    {
+        checkString("''''''", "''''''")
     }
 
+    @Test
+    def void parseGeneralLongString()
+    {
+        checkString("'''a'''", "'''a'''")
+        checkString("'''a' '''", "'''a' '''")
+    }
+
+    def void checkString(String ionText, String expectedContent)
+    {
+        val values = parse(ionText)
+        assertEquals(1, values.size)
+        val str = values.get(0) as software.amazon.ionxtext.ion.String
+        assertEquals(expectedContent, str.value)
+    }
+
+    def EList<Value> parse(CharSequence text)
+    {
+        val resource = resourceHelper.resource(text)
+
+        if (resource.errors.size != 0)
+        {
+            Assert.fail('''Unexpected errors: «resource.errors»''')
+        }
+
+        assertEquals("resource contents size", 1, resource.contents.size)
+
+        val dg = resource.contents.get(0) as Datagram
+        dg.values
+    }
 }
