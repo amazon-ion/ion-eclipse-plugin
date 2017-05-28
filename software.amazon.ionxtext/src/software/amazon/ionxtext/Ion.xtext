@@ -72,7 +72,7 @@ Timestamp_value:
 ;
 
 Symbol_value:
-    (IDENTIFIER | SYMBOL | SYMBOL_NULL)
+    (IDENTIFIER_SYMBOL | QUOTED_SYMBOL | SYMBOL_NULL)
 ;
 
 String_value:
@@ -108,7 +108,7 @@ Unquoted_Operator:
 ;
 
 Annotation:
-    value=(IDENTIFIER | SYMBOL) '::'
+    value=(IDENTIFIER_SYMBOL | QUOTED_SYMBOL) '::'
 ;
 
 Field:
@@ -116,8 +116,8 @@ Field:
 ;
 
 Field_name:
-    IDENTIFIER
-    | SYMBOL
+    IDENTIFIER_SYMBOL
+    | QUOTED_SYMBOL
     | DOUBLEQUOTEDSTRING
 //    | SHORT_QUOTED_STRING
     | TRIPLEQUOTEDSTRING+
@@ -243,62 +243,63 @@ TIMEOFFSET:
 ;
 
 terminal
-SYMBOL:
-    "'" ( ESCAPESEQUENCE  | SINGLEQUOTEDCHAR )+ "'"
-;
-
-terminal
 OP:
     OPERATOR+
-;
-
-terminal //fragment
-IDENTIFIER:
-    ( '$' | '_' | 'A'..'Z' | 'a'..'z' )  ( '$' | '_' | 'A'..'Z' | 'a'..'z' | '0'..'9' )*
-;
-
-terminal fragment
-SINGLEQUOTEDCHAR:
-      //'\u0008'                      // tab - causes error in Xtext
-    '\t'
-    | '\u0020'..'\u0026'              // space through andpersand
-    //  skip \u0027 - singe quote
-    | '\u0028'..'\u005B'              // open paren through close brace
-    // skip '\u005C' backslash
-    | '\u005D'..'\u007e'              // open brace through tilde, end of ASCII
-    // skip '\u007f' del
-    | '\u0080'..'\ufffd'              // rest of the 16 bit code points
-    // skip '\uffff' - causes error in Xtext
 ;
 
 // === Detect bad tokens and treat them as errors in IonJavaValidation ===
 terminal
 BAD_NULLTYPE:
-    'null.' (IDENTIFIER)
+    'null.' (IDENTIFIER_SYMBOL)
 ;
 
 // TODO Trap invalid leading zeroes, eg 0123
 terminal
 BAD_INT:
-    INT (IDENTIFIER | INT | '/')
+    INT (IDENTIFIER_SYMBOL | INT | '/')
 ;
 
 terminal
 BAD_FLOAT:
-    FLOAT (IDENTIFIER | INT | '/')
+    FLOAT (IDENTIFIER_SYMBOL | INT | '/')
 ;
 
 terminal
 BAD_DECIMAL:
-    DECIMAL (IDENTIFIER | INT | '/')
+    DECIMAL (IDENTIFIER_SYMBOL | INT | '/')
 ;
 
 terminal
 BAD_TIMESTAMP:
-    TIMESTAMP (IDENTIFIER | INT | '/')
+    TIMESTAMP (IDENTIFIER_SYMBOL | INT | '/')
 ;
 // =========================
 
+//////////////////////////////////////////////////////////////////////////////
+// Ion Symbol
+//////////////////////////////////////////////////////////////////////////////
+
+terminal
+QUOTED_SYMBOL
+    : SYMBOL_QUOTE ( ESCAPESEQUENCE  | SYMBOL_TEXT_ALLOWED )+ SYMBOL_QUOTE
+    ;
+
+// FIXME: Allow U+007F U+00FE U+00FF
+terminal fragment
+SYMBOL_TEXT_ALLOWED:
+      //'\u0008'                      // tab - causes error in Xtext
+    '\t'
+    | '\u0020'..'\u0026' // no C1 control characters and no U+0027 single quote
+    | '\u0028'..'\u005B' // no U+005C backslash
+    | '\u005D'..'\u007e'              // skip '\u007f' del
+    | '\u0080'..'\ufffd'              // rest of the 16 bit code points
+    // skip '\uffff' - causes error in Xtext
+    ;
+
+terminal //fragment
+IDENTIFIER_SYMBOL
+    : ( '$' | '_' | 'A'..'Z' | 'a'..'z' )  ( '$' | '_' | 'A'..'Z' | 'a'..'z' | DEC_DIGIT )*
+    ;
 
 //////////////////////////////////////////////////////////////////////////////
 // Ion String
@@ -510,6 +511,9 @@ terminal fragment
 LOB_END
     : '}}'
     ;
+
+terminal
+fragment SYMBOL_QUOTE : '\'';
 
 terminal fragment
 SHORT_QUOTE
