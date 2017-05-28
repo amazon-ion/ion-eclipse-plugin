@@ -56,11 +56,11 @@ Bool_value:
 ;
 
 Int_value:
-    (INT | INT_NULL)
+    (BIN_INTEGER | DEC_INTEGER | HEX_INTEGER | INT_NULL)
 ;
 
 Float_value:
-    (FLOAT | FLOAT_NULL)
+    (FLOAT | SPECIAL_FLOAT | FLOAT_NULL)
 ;
 
 Decimal_value:
@@ -197,31 +197,6 @@ BOOL:
     'true' | 'false'
 ;
 
-terminal
-INT:
-    '0'
-  | '-0'
-  | '-'? '1'..'9' '0'..'9'* // Leading_Digits without the '0'
-  | '-'? ('0x'|'0X') ('0'..'9'|'a'..'f'|'A'..'F')+
-;
-
-terminal
-FLOAT:
-     '-'? DEC_UNSIGNED_INTEGER DEC_FRAC? ('E' | 'F' | 'e' | 'f') ( '+' | '-' )? ('0'..'9')+
-  |  'nan'
-  |  ( '+' | '-' ) 'inf'
-;
-
-terminal
-DECIMAL:
-     '-'? DEC_UNSIGNED_INTEGER DEC_FRAC
-  |  '-'? DEC_UNSIGNED_INTEGER DEC_FRAC? DECIMAL_EXP
-;
-
-terminal fragment
-DECIMAL_EXP
-    : ('D' | 'd') PLUS_OR_MINUS? DEC_DIGIT+
-    ;
 
 terminal
 TIMESTAMP:
@@ -242,10 +217,63 @@ TIMEOFFSET:
   |  ('+' | '-') TWODIGITS (':' TWODIGITS)?
 ;
 
+
+//////////////////////////////////////////////////////////////////////////////
+// Ion Int
+//////////////////////////////////////////////////////////////////////////////
+
 terminal
-OP:
-    OPERATOR+
-;
+BIN_INTEGER
+    : '-'? '0' ('b' | 'B') BINARY_DIGIT (UNDERSCORE? BINARY_DIGIT)*
+    ;
+
+terminal
+DEC_INTEGER
+    : '-'? DEC_UNSIGNED_INTEGER
+    ;
+
+terminal
+HEX_INTEGER
+    : '-'? '0' ('x' | 'X') HEXDIGIT (UNDERSCORE? HEXDIGIT)*
+    ;
+
+
+//////////////////////////////////////////////////////////////////////////////
+// Ion Float
+//////////////////////////////////////////////////////////////////////////////
+
+terminal
+SPECIAL_FLOAT
+    : PLUS_OR_MINUS 'inf'
+    | 'nan'
+    ;
+
+terminal
+FLOAT
+    : DEC_INTEGER DEC_FRAC? FLOAT_EXP
+    ;
+
+terminal
+fragment
+FLOAT_EXP
+    : ('E' | 'e') PLUS_OR_MINUS? DEC_DIGIT+
+    ;
+
+
+//////////////////////////////////////////////////////////////////////////////
+// Ion Decimal
+//////////////////////////////////////////////////////////////////////////////
+
+terminal
+DECIMAL
+    : DEC_INTEGER DEC_FRAC? DECIMAL_EXP?
+    ;
+
+terminal
+fragment
+DECIMAL_EXP
+    : ('D' | 'd') PLUS_OR_MINUS? DEC_DIGIT+
+    ;
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -273,6 +301,12 @@ terminal //fragment
 IDENTIFIER_SYMBOL
     : ( '$' | '_' | 'A'..'Z' | 'a'..'z' )  ( '$' | '_' | 'A'..'Z' | 'a'..'z' | DEC_DIGIT )*
     ;
+
+terminal
+OP:
+    OPERATOR+
+;
+
 
 //////////////////////////////////////////////////////////////////////////////
 // Ion String
@@ -537,6 +571,12 @@ HEXDIGIT:
     | 'A'..'F'
 ;
 
+terminal
+fragment
+BINARY_DIGIT
+    : ( '0' | '1' )
+    ;
+
 terminal fragment
 PLUS_OR_MINUS
     : ( '+' | '-' )
@@ -660,20 +700,20 @@ BAD_NULLTYPE:
 // TODO Trap invalid leading zeroes, eg 0123
 terminal
 BAD_INT:
-    INT (IDENTIFIER_SYMBOL | INT | '/')
+    DEC_INTEGER (IDENTIFIER_SYMBOL | DEC_INTEGER | '/')
 ;
 
 terminal
 BAD_FLOAT:
-    FLOAT (IDENTIFIER_SYMBOL | INT | '/')
+    FLOAT (IDENTIFIER_SYMBOL | DEC_INTEGER | '/')
 ;
 
 terminal
 BAD_DECIMAL:
-    DECIMAL (IDENTIFIER_SYMBOL | INT | '/')
+    DECIMAL (IDENTIFIER_SYMBOL | DEC_INTEGER | '/')
 ;
 
 terminal
 BAD_TIMESTAMP:
-    TIMESTAMP (IDENTIFIER_SYMBOL | INT | '/')
+    TIMESTAMP (IDENTIFIER_SYMBOL | DEC_INTEGER | '/')
 ;
