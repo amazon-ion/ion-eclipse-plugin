@@ -294,7 +294,7 @@ DEC_INTEGER
 
 terminal
 HEX_INTEGER
-    : '-'? '0' ('x' | 'X') HEXDIGIT (UNDERSCORE? HEXDIGIT)*
+    : '-'? '0' ('x' | 'X') HEX_DIGIT (UNDERSCORE? HEX_DIGIT)*
     ;
 
 
@@ -614,12 +614,13 @@ DEC_DIGIT
     : '0'..'9'
     ;
 
-terminal fragment
-HEXDIGIT:
-      '0'..'9'
+terminal
+fragment
+HEX_DIGIT
+    : '0'..'9'
     | 'a'..'f'
     | 'A'..'F'
-;
+    ;
 
 terminal
 fragment
@@ -680,22 +681,22 @@ COMMON_ESCAPE_CODE
 
 terminal fragment
 HEX_ESCAPE
-    : '\\' 'x' HEXDIGIT HEXDIGIT
+    : '\\' 'x' HEX_DIGIT HEX_DIGIT
     ;
 
 terminal fragment
 U_ESCAPE
-    : '\\' 'u' HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT
+    : '\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
     ;
 
 terminal fragment
 UU_ESCAPE
-    : '\\' 'U' HEX_DIGIT_QUARTET HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT
+    : '\\' 'U' HEX_DIGIT_QUARTET HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
     ;
 
 terminal fragment
 HEX_DIGIT_QUARTET
-    : HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT
+    : HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
     ;
 
 terminal
