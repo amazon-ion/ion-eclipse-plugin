@@ -14,7 +14,7 @@
 
 grammar software.amazon.ionxtext.Ion
 
-hidden(WS, SL_COMMENT, ML_COMMENT)
+hidden(WS, INLINE_COMMENT, BLOCK_COMMENT)
 
 generate ion "http://www.amazon.software/ionxtext/Ion"
 
@@ -124,73 +124,70 @@ Field_name:
 //    | LONG_QUOTED_STRING+  // TODO spec is (WS* LQS)+
 ;
 
-// ========================== TERMINAL RULES ===========================
 
+//////////////////////////////////////////////////////////////////////////////
+// Ion Punctuation
+//////////////////////////////////////////////////////////////////////////////
 
-terminal
-BOOL_NULL:
-    'null.bool'
+terminal fragment
+OPERATOR:
+     '!' // = 33
+  |  '#' // = 35
+  |  '%' // = 37
+  |  '&' // = 38
+  |  '*' // = 42
+  |  '+' // = 43
+  |  '-' // = 45
+  |  '.' // = 46
+  |  '/' // = 47
+  |  ';' // = 59
+  |  '<' // = 60
+  |  '=' // = 61
+  |  '>' // = 62
+  |  '?' // = 63
+  |  '@' // = 64
+  |  '^' // = 94
+  |  '`' // = 96
+  |  '|' // =124
+  |  '~' // =126
 ;
 
-terminal
-INT_NULL:
-    'null.int'
-;
+//////////////////////////////////////////////////////////////////////////////
+// Ion Whitespace / Comments
+//////////////////////////////////////////////////////////////////////////////
 
 terminal
-FLOAT_NULL:
-    'null.float'
-;
+INLINE_COMMENT
+    : '//' !('\n'|'\r')* ('\r'? '\n')?
+    ;
 
 terminal
-DECIMAL_NULL:
-    'null.decimal'
-;
+BLOCK_COMMENT
+    : '/*' -> '*/'
+    ;
+
+//////////////////////////////////////////////////////////////////////////////
+// Ion Null
+//////////////////////////////////////////////////////////////////////////////
 
 terminal
-TIMESTAMP_NULL:
-    'null.timestamp'
-;
+NULL
+    : 'null'
+    | 'null.null'
+    ;
 
-terminal
-SYMBOL_NULL:
-    'null.symbol'
-;
-
-terminal
-STRING_NULL:
-    'null.string'
-;
-
-terminal
-CLOB_NULL:
-    'null.clob'
-;
-
-terminal
-BLOB_NULL:
-    'null.blob'
-;
-
-terminal
-SEXP_NULL:
-    'null.sexp'
-;
-
-terminal
-LIST_NULL:
-    'null.list'
-;
-
-terminal
-STRUCT_NULL:
-    'null.struct'
-;
-
-terminal
-NULL:
-    'null' | 'null.null'
-;
+terminal BOOL_NULL     : 'null.bool';
+terminal INT_NULL      : 'null.int';
+terminal FLOAT_NULL    : 'null.float';
+terminal DECIMAL_NULL  : 'null.decimal';
+terminal TIMESTAMP_NULL: 'null.timestamp';
+terminal SYMBOL_NULL   : 'null.symbol';
+terminal STRING_NULL   : 'null.string';
+terminal CLOB_NULL     : 'null.clob';
+terminal BLOB_NULL     : 'null.blob';
+terminal SEXP_NULL     : 'null.sexp';
+terminal LIST_NULL     : 'null.list';
+terminal STRUCT_NULL   : 'null.struct';
 
 //////////////////////////////////////////////////////////////////////////////
 // Ion Bool
@@ -346,7 +343,8 @@ QUOTED_SYMBOL
     ;
 
 // FIXME: Allow U+007F U+00FE U+00FF
-terminal fragment
+terminal
+fragment
 SYMBOL_TEXT_ALLOWED:
       //'\u0008'                      // tab - causes error in Xtext
     '\t'
@@ -357,7 +355,7 @@ SYMBOL_TEXT_ALLOWED:
     // skip '\uffff' - causes error in Xtext
     ;
 
-terminal //fragment
+terminal
 IDENTIFIER_SYMBOL
     : ( '$' | '_' | 'A'..'Z' | 'a'..'z' )  ( '$' | '_' | 'A'..'Z' | 'a'..'z' | DEC_DIGIT )*
     ;
@@ -390,7 +388,8 @@ TRIPLEQUOTEDSTRING:
 ;
 
 
-terminal fragment
+terminal
+fragment
 STRING_SHORT_TEXT
     : (TEXT_ESCAPE | STRING_SHORT_TEXT_ALLOWED)*
     ;
@@ -398,7 +397,8 @@ STRING_SHORT_TEXT
 // TODO Official grammar is non-greedy (*?) at STRING_LONG_TEXT
 
 // non-control Unicode and not double quote or backslash
-terminal fragment
+terminal
+fragment
 STRING_SHORT_TEXT_ALLOWED
     // TODO old grammar has '\t' U+0008
     : '\u0020'..'\u0021' // no C1 control characters and no U+0022 double quote
@@ -407,14 +407,16 @@ STRING_SHORT_TEXT_ALLOWED
     ;
 
 // non-control Unicode (newlines are OK)
-terminal fragment
+terminal
+fragment
 STRING_LONG_TEXT_ALLOWED
     : '\u0020'..'\u005B' // no C1 control characters and no U+005C blackslash
     | '\u005D'..'\uFFFF' // FIXME should be up to U+10FFFF
     | NL
     ;
 
-terminal fragment
+terminal
+fragment
 TRIPLEQUOTEDCHAR:
     //'\u0008'                      // tab - causes error in Xtext
       '\t'
@@ -429,7 +431,8 @@ TRIPLEQUOTEDCHAR:
     | '\u0080'..'\ufffd'            // rest of the 16 bit code points
 ;
 
-terminal fragment
+terminal
+fragment
 JUST_ONEQUOTE:
     "'" (TEXT_ESCAPE | TRIPLEQUOTEDCHAR)
 ;
@@ -467,19 +470,22 @@ LONG_QUOTED_CLOB
     : LOB_START (WS* LONG_QUOTE CLOB_LONG_TEXT* LONG_QUOTE)+ WS* LOB_END
     ;
 
-terminal fragment
+terminal
+fragment
 CLOB_SHORT_TEXT
     : (CLOB_ESCAPE | CLOB_SHORT_TEXT_ALLOWED)*
     ;
 
-terminal fragment
+terminal
+fragment
 CLOB_LONG_TEXT
     : CLOB_LONG_TEXT_NO_QUOTE
     | '\'' CLOB_LONG_TEXT_NO_QUOTE
     | '\'\'' CLOB_LONG_TEXT_NO_QUOTE
     ;
 
-terminal fragment
+terminal
+fragment
 CLOB_LONG_TEXT_NO_QUOTE
     : (CLOB_ESCAPE | CLOB_LONG_TEXT_ALLOWED)
     ;
@@ -487,7 +493,8 @@ CLOB_LONG_TEXT_NO_QUOTE
 // FIXME Old grammar accepted U+007F but new one does not. Missing test?
 
 // non-control ASCII and not double quote or backslash
-terminal fragment
+terminal
+fragment
 CLOB_SHORT_TEXT_ALLOWED
     : '\u0020'..'\u0021' // no U+0022 double quote
     | '\u0023'..'\u005B' // no U+005C backslash
@@ -495,7 +502,8 @@ CLOB_SHORT_TEXT_ALLOWED
     ;
 
 // non-control ASCII (newlines are OK)
-terminal fragment
+terminal
+fragment
 CLOB_LONG_TEXT_ALLOWED
     : '\u0020'..'\u0026' // no U+0027 single quote
     | '\u0028'..'\u005B' // no U+005C blackslash
@@ -519,28 +527,33 @@ BLOB
     : LOB_START WS* BASE_64_QUARTET* BASE_64_PAD? LOB_END
     ;
 
-terminal fragment
+terminal
+fragment
 BASE_64_PAD
     : BASE_64_PAD1
     | BASE_64_PAD2
     ;
 
-terminal fragment
+terminal
+fragment
 BASE_64_QUARTET
     : BASE_64_CHAR WS* BASE_64_CHAR WS* BASE_64_CHAR WS* BASE_64_CHAR WS*
     ;
 
-terminal fragment
+terminal
+fragment
 BASE_64_PAD1
     : BASE_64_CHAR WS* BASE_64_CHAR WS* BASE_64_CHAR WS* '=' WS*
     ;
 
-terminal fragment
+terminal
+fragment
 BASE_64_PAD2
     : BASE_64_CHAR WS* BASE_64_CHAR WS* '=' WS* '=' WS*
     ;
 
-terminal fragment
+terminal
+fragment
 BASE_64_CHAR
     : '0'..'9'
     | 'a'..'z'
@@ -554,42 +567,37 @@ BASE_64_CHAR
 // Common Lexical Primitives
 //////////////////////////////////////////////////////////////////////////////
 
-terminal fragment
-LOB_START
-    : '{{'
-    ;
+terminal
+fragment LOB_START    : '{{';
 
-terminal fragment
-LOB_END
-    : '}}'
-    ;
+terminal
+fragment LOB_END      : '}}';
 
 terminal
 fragment SYMBOL_QUOTE : '\'';
 
-terminal fragment
-SHORT_QUOTE
-    : '"'
+terminal
+fragment SHORT_QUOTE  : '"';
+
+terminal
+fragment LONG_QUOTE   : '\'\'\'';
+
+terminal
+fragment
+DEC_UNSIGNED_INTEGER
+    : '0'
+    | '1'..'9' (UNDERSCORE? DEC_DIGIT)*
     ;
 
-terminal fragment
-LONG_QUOTE
-    : "'''"
-    ;
-
-terminal fragment
-DEC_UNSIGNED_INTEGER :
-    '0'
-  | '1'..'9' (UNDERSCORE? DEC_DIGIT)*
-;
-
-terminal fragment
+terminal
+fragment
 DEC_FRAC
     : '.'
     | '.' DEC_DIGIT (UNDERSCORE? DEC_DIGIT)*
     ;
 
-terminal fragment
+terminal
+fragment
 DEC_DIGIT
     : '0'..'9'
     ;
@@ -608,33 +616,12 @@ BINARY_DIGIT
     : ( '0' | '1' )
     ;
 
-terminal fragment
+terminal
+fragment
 PLUS_OR_MINUS
     : ( '+' | '-' )
     ;
 
-terminal fragment
-OPERATOR:
-     '!' // = 33
-  |  '#' // = 35  TODO: this is not included in the C parser
-  |  '%' // = 37
-  |  '&' // = 38
-  |  '*' // = 42
-  |  '+' // = 43
-  |  '-' // = 45
-  |  '.' // = 46
-  |  '/' // = 47
-  |  ';' // = 59
-  |  '<' // = 60
-  |  '=' // = 61
-  |  '>' // = 62
-  |  '?' // = 63
-  |  '@' // = 64
-  |  '^' // = 94
-  |  '`' // = 96
-  |  '|' // =124
-  |  '~' // =126
-;
 
 terminal
 fragment
@@ -664,7 +651,7 @@ COMMON_ESCAPE_CODE
 terminal
 fragment
 HEX_ESCAPE
-    : '\\' 'x' HEX_DIGIT HEX_DIGIT
+    : '\\x' HEX_DIGIT HEX_DIGIT
     ;
 
 // Note: must separate backslash and u to workaround Xtext bug.
@@ -692,7 +679,8 @@ WS
     | '\u0020' // space
     ;
 
-terminal fragment
+terminal
+fragment
 NL
     : '\u000D\u000A'  // carriage return + line feed
     | '\u000D'        // carriage return
@@ -700,17 +688,7 @@ NL
     ;
 
 terminal
-ML_COMMENT:
-    '/*' -> '*/'
-;
-
-terminal
-SL_COMMENT:
-    '//' !('\n'|'\r')* ('\r'? '\n')?
-;
-
-
-terminal fragment
+fragment
 UNDERSCORE
     : '_'
     ;
