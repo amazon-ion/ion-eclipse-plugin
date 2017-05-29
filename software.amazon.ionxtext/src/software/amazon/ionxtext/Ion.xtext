@@ -385,7 +385,7 @@ SHORT_QUOTED_STRING
 terminal
 TRIPLEQUOTEDSTRING:
     LONG_QUOTE
-    ( ESCAPESEQUENCE | TRIPLEQUOTEDCHAR | JUST_ONEQUOTE | JUST_TWOQUOTE )*
+    ( TEXT_ESCAPE | TRIPLEQUOTEDCHAR | JUST_ONEQUOTE | JUST_TWOQUOTE )*
     LONG_QUOTE
 ;
 
@@ -427,34 +427,23 @@ TRIPLEQUOTEDCHAR:
     | '\u005D'..'\u007e'            // open brace through tilde, end of ASCII
     // skip '\u007f' del
     | '\u0080'..'\ufffd'            // rest of the 16 bit code points
-    | NEWLINE_ESCAPE
 ;
 
 terminal fragment
 JUST_ONEQUOTE:
-    "'" (ESCAPESEQUENCE | TRIPLEQUOTEDCHAR)
+    "'" (TEXT_ESCAPE | TRIPLEQUOTEDCHAR)
 ;
 
 terminal fragment
 JUST_TWOQUOTE:
-    "''" (ESCAPESEQUENCE | TRIPLEQUOTEDCHAR)
+    "''" (TEXT_ESCAPE | TRIPLEQUOTEDCHAR)
 ;
 
-terminal fragment
+terminal
+fragment
 TEXT_ESCAPE
-    : COMMON_ESCAPE
-    | NEWLINE_ESCAPE  // FIXME merge into COMMON_ESCAPE
-    | HEX_ESCAPE
-    | UNICODE_ESCAPE
+    : COMMON_ESCAPE | HEX_ESCAPE | UNICODE_ESCAPE
     ;
-
-terminal fragment
-ESCAPESEQUENCE:
-      COMMON_ESCAPE  // FIXME missing escaped newline
-    | HEX_ESCAPE
-    | UNICODE_ESCAPE
-;
-
 
 //////////////////////////////////////////////////////////////////////////////
 // Ion CLOB
@@ -514,11 +503,10 @@ CLOB_LONG_TEXT_ALLOWED
     | NL
     ;
 
-terminal fragment
+terminal
+fragment
 CLOB_ESCAPE
-    : COMMON_ESCAPE
-    | HEX_ESCAPE
-    | '\\' NL       // FIXME This should be in COMMON_ESCAPE
+    : COMMON_ESCAPE | HEX_ESCAPE
     ;
 
 
@@ -590,11 +578,6 @@ LONG_QUOTE
     ;
 
 terminal fragment
-NEWLINE_ESCAPE:
-    '\\' NL
-;
-
-terminal fragment
 DEC_UNSIGNED_INTEGER :
     '0'
   | '1'..'9' (UNDERSCORE? DEC_DIGIT)*
@@ -653,12 +636,14 @@ OPERATOR:
   |  '~' // =126
 ;
 
-terminal fragment
+terminal
+fragment
 COMMON_ESCAPE
     : '\\' COMMON_ESCAPE_CODE
     ;
 
-terminal fragment
+terminal
+fragment
 COMMON_ESCAPE_CODE
     : 'a'
     | 'b'
@@ -673,7 +658,7 @@ COMMON_ESCAPE_CODE
     | '"'
     | '/'
     | '\\'
-//  | NL    // FIXME
+    | NL
     ;
 
 terminal
