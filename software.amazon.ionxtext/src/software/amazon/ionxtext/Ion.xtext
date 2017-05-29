@@ -198,24 +198,79 @@ BOOL:
 ;
 
 
+//////////////////////////////////////////////////////////////////////////////
+// Ion Timestamp
+//////////////////////////////////////////////////////////////////////////////
+
 terminal
-TIMESTAMP:
-      FOURDIGITS 'T' TIMEOFFSET?
-    | FOURDIGITS '-' TWODIGITS 'T' TIMEOFFSET?
-    | FOURDIGITS '-' TWODIGITS '-' TWODIGITS ( 'T' TIMEOFFSET? )?
-    | FOURDIGITS '-' TWODIGITS '-' TWODIGITS 'T' TWODIGITS TIMEOFFSET?
-    | FOURDIGITS '-' TWODIGITS '-' TWODIGITS 'T' TWODIGITS ':' TWODIGITS TIMEOFFSET?
-    | FOURDIGITS '-' TWODIGITS '-' TWODIGITS 'T' TWODIGITS ':' TWODIGITS ':' TWODIGITS ('.' ('0'..'9')* )? TIMEOFFSET?
-;
+TIMESTAMP
+    : DATE ('T' TIME?)?
+    | YEAR '-' MONTH 'T'
+    | YEAR 'T'
+    ;
 
+terminal
+fragment
+DATE
+    : YEAR '-' MONTH '-' DAY
+    ;
 
+terminal
+fragment
+YEAR
+    : '000'                            ('1'..'9')
+    | '00'                  ('1'..'9') DEC_DIGIT
+    | '0'        ('1'..'9') DEC_DIGIT  DEC_DIGIT
+    | ('1'..'9') DEC_DIGIT  DEC_DIGIT  DEC_DIGIT
+    ;
 
-terminal fragment
-TIMEOFFSET:
-     'z'
-  |  'Z'
-  |  ('+' | '-') TWODIGITS (':' TWODIGITS)?
-;
+terminal
+fragment
+MONTH
+    : '0' ('1'..'9')
+    | '1' ('0'..'2')
+    ;
+
+terminal
+fragment
+DAY
+    : '0'        ('1'..'9')
+    | ('1'..'2') DEC_DIGIT
+    | '3'        ('0'..'1')
+    ;
+
+terminal
+fragment
+TIME
+    : HOUR ':' MINUTE (':' SECOND)? OFFSET
+    ;
+
+terminal
+fragment
+OFFSET
+    : 'Z'
+    | PLUS_OR_MINUS HOUR ':' MINUTE
+    ;
+
+terminal
+fragment
+HOUR
+    : ('0'..'1') DEC_DIGIT
+    | '2'        ('0'..'3')
+    ;
+
+terminal
+fragment
+MINUTE
+    : ('0'..'5') DEC_DIGIT
+    ;
+
+// note that W3C spec requires a digit after the '.'
+terminal
+fragment
+SECOND
+    : ('0'..'5') DEC_DIGIT ('.' DEC_DIGIT+)?
+    ;
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -553,16 +608,6 @@ terminal fragment
 DEC_DIGIT
     : '0'..'9'
     ;
-
-terminal fragment
-TWODIGITS:
-    '0'..'9' '0'..'9'
-;
-
-terminal fragment
-FOURDIGITS:
-    '0'..'9' '0'..'9' '0'..'9' '0'..'9'
-;
 
 terminal fragment
 HEXDIGIT:
