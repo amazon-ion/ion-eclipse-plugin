@@ -445,17 +445,14 @@ TEXT_ESCAPE
     : COMMON_ESCAPE
     | NEWLINE_ESCAPE  // FIXME merge into COMMON_ESCAPE
     | HEX_ESCAPE
-//  | UNICODE_ESCAPE  // FIXME use this
-    | U_ESCAPE
-    | UU_ESCAPE
+    | UNICODE_ESCAPE
     ;
 
 terminal fragment
 ESCAPESEQUENCE:
-      COMMON_ESCAPE
+      COMMON_ESCAPE  // FIXME missing escaped newline
     | HEX_ESCAPE
-    | U_ESCAPE
-    | UU_ESCAPE
+    | UNICODE_ESCAPE
 ;
 
 
@@ -679,22 +676,23 @@ COMMON_ESCAPE_CODE
 //  | NL    // FIXME
     ;
 
-terminal fragment
+terminal
+fragment
 HEX_ESCAPE
     : '\\' 'x' HEX_DIGIT HEX_DIGIT
     ;
 
-terminal fragment
-U_ESCAPE
-    : '\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
+// Note: must separate backslash and u to workaround Xtext bug.
+terminal
+fragment
+UNICODE_ESCAPE
+    : '\\' 'u'     HEX_DIGIT_QUARTET
+    | '\\' 'U000'  HEX_DIGIT_QUARTET HEX_DIGIT
+    | '\\' 'U0010' HEX_DIGIT_QUARTET
     ;
 
-terminal fragment
-UU_ESCAPE
-    : '\\' 'U' HEX_DIGIT_QUARTET HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
-    ;
-
-terminal fragment
+terminal
+fragment
 HEX_DIGIT_QUARTET
     : HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
     ;
