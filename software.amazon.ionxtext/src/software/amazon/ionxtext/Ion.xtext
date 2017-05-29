@@ -684,13 +684,13 @@ HEX_DIGIT_QUARTET
 
 terminal
 WS
-  :  '\t'
-  |  '\n'
-//|  '\u000B' // FIXME vertical tab
-//|  '\u000C' // FIXME form feed -- causes error in xtext
-  |  '\r'
-  |  ' '
-;
+    : '\u0009' // tab
+    | '\u000A' // line feed
+    | '\u000B' // vertical tab
+    | '\u000C' // form feed
+    | '\u000D' // carriage return
+    | '\u0020' // space
+    ;
 
 terminal fragment
 NL
