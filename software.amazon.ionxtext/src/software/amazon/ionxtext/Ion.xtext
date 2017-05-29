@@ -690,7 +690,6 @@ WS
 //|  '\u000C' // FIXME form feed -- causes error in xtext
   |  '\r'
   |  ' '
-  |  '\\' ('\r')? '\n'
 ;
 
 terminal fragment
