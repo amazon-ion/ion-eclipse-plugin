@@ -5,6 +5,5 @@ empty.ion
 eolCommentCr.ion
 strings.ion
 stringsWithWhitespace.ion
-symbolEmpty.ion
 utf16.ion
 utf32.ion

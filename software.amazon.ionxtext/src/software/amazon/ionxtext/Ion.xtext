@@ -339,20 +339,22 @@ DECIMAL_EXP
 
 terminal
 QUOTED_SYMBOL
-    : SYMBOL_QUOTE ( TEXT_ESCAPE  | SYMBOL_TEXT_ALLOWED )+ SYMBOL_QUOTE
+    : SYMBOL_QUOTE SYMBOL_TEXT SYMBOL_QUOTE
     ;
 
-// FIXME: Allow U+007F U+00FE U+00FF
 terminal
 fragment
-SYMBOL_TEXT_ALLOWED:
-      //'\u0008'                      // tab - causes error in Xtext
-    '\t'
-    | '\u0020'..'\u0026' // no C1 control characters and no U+0027 single quote
+SYMBOL_TEXT
+    : (TEXT_ESCAPE | SYMBOL_TEXT_ALLOWED)*
+    ;
+
+// non-control Unicode and not single quote or backslash
+terminal
+fragment
+SYMBOL_TEXT_ALLOWED
+    : '\u0020'..'\u0026' // no C1 control characters and no U+0027 single quote
     | '\u0028'..'\u005B' // no U+005C backslash
-    | '\u005D'..'\u007e'              // skip '\u007f' del
-    | '\u0080'..'\ufffd'              // rest of the 16 bit code points
-    // skip '\uffff' - causes error in Xtext
+    | '\u005D'..'\uFFFF' // should be up to U+10FFFF
     ;
 
 terminal
