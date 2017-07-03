@@ -78,6 +78,7 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
+                    <pomDependencies>consider</pomDependencies>
 					<target>
 						<artifact>
 							<groupId>software.amazon.ionxtext</groupId>
@@ -280,5 +281,10 @@
 	</pluginRepositories>
 
 	<dependencies>
+		<dependency>
+			<groupId>software.amazon.ion</groupId>
+			<artifactId>ion-java</artifactId>
+			<version>1.0.2</version>
+		</dependency>
 	</dependencies>
 </project>

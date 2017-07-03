@@ -57,7 +57,30 @@
 				<groupId>org.eclipse.xtend</groupId>
 				<artifactId>xtend-maven-plugin</artifactId>
 			</plugin>
-	
+			
+			<!-- This makes POM-first plugins available to Eclipse, by copying
+			   them into a directory used by our Target Platform definition. -->
+	        <plugin>
+		      <groupId>org.apache.maven.plugins</groupId>
+		      <artifactId>maven-dependency-plugin</artifactId>
+		      <version>2.6</version>
+		      <executions>
+		        <execution>
+		            <id>copy-dependencies</id>
+		            <phase>package</phase>
+		            <goals>
+		              <goal>copy-dependencies</goal>
+		            </goals>
+		            <configuration>
+		              <outputDirectory>../software.amazon.ionxtext.target/pom-first-plugins</outputDirectory>
+		              <excludeTransitive>true</excludeTransitive>
+		              <overWriteReleases>false</overWriteReleases>
+		              <overWriteSnapshots>false</overWriteSnapshots>
+		              <overWriteIfNewer>true</overWriteIfNewer>
+		            </configuration>
+		        </execution>
+		      </executions>
+		    </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-clean-plugin</artifactId>
@@ -102,6 +125,9 @@
 						<fileset>
 							<directory>${basedir}/model/generated/</directory>
 						</fileset>
+                        <fileset>
+                            <directory>${basedir}/../software.amazon.ionxtext.target/pom-first-plugins/</directory>
+                        </fileset>
 					</filesets>
 				</configuration>
 			</plugin>

@@ -42,6 +42,11 @@ target platform definition. Go to
 **Preferences | Plug-in Development | Target Platform**, select
 `software.amazon.ionxtext.target`, and **Reload**.
 
+If the problem is with classes in `software.amazon.ion` (_i.e._, the ion-java
+library), then you've probably not built this project from Maven. That's needed
+in order to copy POM-first dependencies from the Maven repository into a local
+`pom-first-plugins` directory that's linked into the target platform.
+
 # Developing in Eclipse
 
 ## Running the Tests
