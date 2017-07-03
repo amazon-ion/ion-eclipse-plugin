@@ -21,48 +21,58 @@ import software.amazon.ionxtext.ion.BadInt
 import software.amazon.ionxtext.ion.BadNulltype
 import software.amazon.ionxtext.ion.BadTimestamp
 import software.amazon.ionxtext.ion.IonPackage
-
+//import software.amazon.ionxtext.ion.Timestamp
+import software.amazon.ion.Timestamp
 /**
  * This class contains custom validation rules. 
  *
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
 class IonValidator 
-	extends AbstractIonValidator 
+    extends AbstractIonValidator 
 {
-	def badNumericStopper(String ionTypeName, String content, EClass klass) {
-		val badChar = content.substring(content.length - 1)
-		
-		// TODO This error message isn't always correct.
-		//   Example:  1997-2  implicates '2'
-		// TODO Escape the badChar (eg if it's a control character).
-		val msg = ionTypeName + " is followed by an invalid character near '" + badChar + "'" 
-        	  
+    def badNumericStopper(String ionTypeName, String content, EClass klass) {
+        val badChar = content.substring(content.length - 1)
+
+        // TODO This error message isn't always correct.
+        //   Example:  1997-2  implicates '2'
+        // TODO Escape the badChar (eg if it's a control character).
+        val msg = ionTypeName + " is followed by an invalid character near '" + badChar + "'" 
+
         error(msg, klass.getEStructuralFeature(0))
-	}
-	
+    }
+
     @Check
     def badIntStopper(BadInt token) {
-    	badNumericStopper("int", token.content, IonPackage.Literals.BAD_INT)
+        badNumericStopper("int", token.content, IonPackage.Literals.BAD_INT)
     }
-    
+
     @Check
     def badFloatStopper(BadFloat token) {
-    	badNumericStopper("float", token.content, IonPackage.Literals.BAD_FLOAT)
+        badNumericStopper("float", token.content, IonPackage.Literals.BAD_FLOAT)
     }
-    
+
     @Check
     def badDecimalStopper(BadDecimal token) {
-    	badNumericStopper("decimal", token.content, IonPackage.Literals.BAD_DECIMAL)
+        badNumericStopper("decimal", token.content, IonPackage.Literals.BAD_DECIMAL)
     }
-    
+
     @Check
     def badTimestampStopper(BadTimestamp token) {
-    	badNumericStopper("timestamp", token.content, IonPackage.Literals.BAD_TIMESTAMP)
+        badNumericStopper("timestamp", token.content, IonPackage.Literals.BAD_TIMESTAMP)
     }
-    
+
     @Check
     def badNull(BadNulltype token) {
         error("Invalid null variant", null)
+    }
+
+    @Check
+    def checkTimestamp(software.amazon.ionxtext.ion.Timestamp token) {
+        try {
+            var x = software.amazon.ion.Timestamp::valueOf(token.value);
+        } catch (IllegalArgumentException ex) {
+            error(ex.getMessage(), null);
+        }
     }
 }
