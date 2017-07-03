@@ -6,8 +6,6 @@ localSymbolTableImportNegativeMaxId.ion
 localSymbolTableImportNonIntegerMaxId.ion
 localSymbolTableImportNullMaxId.ion
 nonLeapYear.ion
-nullDotTimestamps.ion
-nullDotTimestampsInSexp.ion
 symbolIDUnmapped.ion
 timestamp/dateDaysInMonth_2.ion
 timestamp/dateDaysInMonth_3.ion

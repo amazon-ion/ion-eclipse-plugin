@@ -1,4 +1,4 @@
-/* Copyright 2012-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+/* Copyright 2012-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import org.eclipse.xtext.validation.Check
 import software.amazon.ionxtext.ion.BadDecimal
 import software.amazon.ionxtext.ion.BadFloat
 import software.amazon.ionxtext.ion.BadInt
+import software.amazon.ionxtext.ion.BadNulltype
 import software.amazon.ionxtext.ion.BadTimestamp
 import software.amazon.ionxtext.ion.IonPackage
 
@@ -58,5 +59,10 @@ class IonValidator
     @Check
     def badTimestampStopper(BadTimestamp token) {
     	badNumericStopper("timestamp", token.content, IonPackage.Literals.BAD_TIMESTAMP)
+    }
+    
+    @Check
+    def badNull(BadNulltype token) {
+        error("Invalid null variant", null)
     }
 }
