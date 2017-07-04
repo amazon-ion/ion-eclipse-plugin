@@ -492,15 +492,14 @@ CLOB_LONG_TEXT_NO_QUOTE
     : (CLOB_ESCAPE | CLOB_LONG_TEXT_ALLOWED)
     ;
 
-// FIXME Old grammar accepted U+007F but new one does not. Missing test?
-
 // non-control ASCII and not double quote or backslash
 terminal
 fragment
 CLOB_SHORT_TEXT_ALLOWED
     : '\u0020'..'\u0021' // no U+0022 double quote
     | '\u0023'..'\u005B' // no U+005C backslash
-    | '\u005D'..'\u007E'
+    | '\u005D'..'\u007F'
+    | WS_NOT_NL
     ;
 
 // non-control ASCII (newlines are OK)
@@ -509,8 +508,8 @@ fragment
 CLOB_LONG_TEXT_ALLOWED
     : '\u0020'..'\u0026' // no U+0027 single quote
     | '\u0028'..'\u005B' // no U+005C blackslash
-    | '\u005D'..'\u007E'
-    | NL
+    | '\u005D'..'\u007F'
+    | WS
     ;
 
 terminal
@@ -673,12 +672,9 @@ HEX_DIGIT_QUARTET
 
 terminal
 WS
-    : '\u0009' // tab
+    : WS_NOT_NL
     | '\u000A' // line feed
-    | '\u000B' // vertical tab
-    | '\u000C' // form feed
     | '\u000D' // carriage return
-    | '\u0020' // space
     ;
 
 terminal
@@ -687,6 +683,15 @@ NL
     : '\u000D\u000A'  // carriage return + line feed
     | '\u000D'        // carriage return
     | '\u000A'        // line feed
+    ;
+
+terminal
+fragment
+WS_NOT_NL
+    : '\u0009' // tab
+    | '\u000B' // vertical tab
+    | '\u000C' // form feed
+    | '\u0020' // space
     ;
 
 terminal

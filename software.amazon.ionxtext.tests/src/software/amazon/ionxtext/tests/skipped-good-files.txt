@@ -1,6 +1,4 @@
 blank.ion
-clobWithDel.ion
-clobsWithWhitespace.ion
 empty.ion
 eolCommentCr.ion
 strings.ion
