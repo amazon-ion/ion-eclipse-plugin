@@ -1,7 +1,5 @@
 blank.ion
 empty.ion
 eolCommentCr.ion
-strings.ion
-stringsWithWhitespace.ion
 utf16.ion
 utf32.ion

@@ -402,10 +402,10 @@ STRING_SHORT_TEXT
 terminal
 fragment
 STRING_SHORT_TEXT_ALLOWED
-    // TODO old grammar has '\t' U+0008
     : '\u0020'..'\u0021' // no C1 control characters and no U+0022 double quote
     | '\u0023'..'\u005B' // no U+005C backslash
     | '\u005D'..'\uFFFF' // FIXME should be up to U+10FFFF
+    | WS_NOT_NL
     ;
 
 // non-control Unicode (newlines are OK)
@@ -414,24 +414,17 @@ fragment
 STRING_LONG_TEXT_ALLOWED
     : '\u0020'..'\u005B' // no C1 control characters and no U+005C blackslash
     | '\u005D'..'\uFFFF' // FIXME should be up to U+10FFFF
-    | NL
+    | WS
     ;
 
 terminal
 fragment
-TRIPLEQUOTEDCHAR:
-    //'\u0008'                      // tab - causes error in Xtext
-      '\t'
-    | '\u000A'                      // new line
-    | '\u000D'                      // carriage return
-    | '\u0020'..'\u0026'            // space through andpersand
-    //  we don't skip the singe quote - but we recognize it distinctly
-    | '\u0028'..'\u005B'            // open paren through close brace
-    // skip '\u005C' backslash
-    | '\u005D'..'\u007e'            // open brace through tilde, end of ASCII
-    // skip '\u007f' del
-    | '\u0080'..'\ufffd'            // rest of the 16 bit code points
-;
+TRIPLEQUOTEDCHAR
+    : '\u0020'..'\u0026' // no U+0027 single quote (handled specially)
+    | '\u0028'..'\u005B' // no U+005C blackslash
+    | '\u005D'..'\uFFFF' // FIXME should be up to U+10FFFF
+    | WS
+    ;
 
 terminal
 fragment
