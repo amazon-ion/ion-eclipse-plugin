@@ -1,4 +1,4 @@
-/* Copyright 2012-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+/* Copyright 2012-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -24,52 +24,45 @@ import static software.amazon.ionxtext.tests.UnitTestUtils.testdataFiles;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.xtext.junit4.InjectWith;
-import org.eclipselabs.xtext.utils.unittesting.XtextRunner2;
-import org.eclipselabs.xtext.utils.unittesting.XtextTest;
-import org.junit.Before;
+import org.eclipse.xtext.junit4.XtextRunner;
+import org.eclipse.xtext.resource.IResourceServiceProvider;
+import org.eclipse.xtext.validation.CheckMode;
+import org.eclipse.xtext.validation.IResourceValidator;
+import org.eclipse.xtext.validation.Issue;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import software.amazon.ionxtext.ion.Datagram;
+import com.google.inject.Inject;
+
 import software.amazon.ionxtext.tests.UnitTestUtils.And;
 
 /**
  * Tests the Xtext grammar of Ion by parsing all of the ion-tests data files.
  */
-@RunWith(XtextRunner2.class)
+@RunWith(XtextRunner.class)
 @InjectWith(IonInjectorProvider.class)
 public class IonTestsParsingTest
-    extends XtextTest
 {
+    @Inject
+    private FileResourceHelper resourceHelper;
+
+    @Inject
+    private IResourceServiceProvider.Registry serviceProviderRegistry;
+
     public IonTestsParsingTest()
-        throws Exception
     {
-        // Have the framework load files relative to the project root.
-        super("file:/" + new File(".").getAbsolutePath());
     }
 
-    /**
-     * Returns the expected type of the root element of the data files.
-     */
-    @Override
-    protected Class<? extends EObject> getRootObjectType(final URI uri)
-    {
-        return Datagram.class;
-    }
-
-    @Before
-    public void ignoreSerializationIssues()
-    {
-        ignoreSerializationDifferences();
-        ignoreFormattingDifferences();
-    }
 
     @Test
     public void goodFilesParseSuccessfully()
+        throws Exception
     {
         File[] fileNames = testdataFiles(new And(IS_ION_TEXT,
                                                  IS_NOT_SKIPPED_GOOD_FILE),
@@ -78,12 +71,14 @@ public class IonTestsParsingTest
 
         for (File file : fileNames)
         {
-            parseSuccessfully(file);
+            parseSuccessfully(file, file.getPath());
         }
     }
 
+
     @Test
     public void badFilesParseUnsuccessfully()
+        throws Exception
     {
         File[] fileNames = testdataFiles(new And(IS_ION_TEXT,
                                                  IS_NOT_SKIPPED_BAD_FILE),
@@ -92,59 +87,86 @@ public class IonTestsParsingTest
 
         for (File file : fileNames)
         {
-            parseUnsuccessfully(file);
+            parseUnsuccessfully(file, file.getPath());
         }
     }
 
 
     @Test
     public void skippedGoodFilesParseUnsuccessfully()
+        throws Exception
     {
         File dir = getTestdataFile("good");
         for (String filename : SKIPPED_GOOD_FILES)
         {
             File file = new File(dir, filename);
-            parseUnsuccessfully(file);
+            parseUnsuccessfully(file, filename);
         }
     }
 
     @Test
     public void skippedBadFilesParseSuccessfully()
+        throws Exception
     {
         File dir = getTestdataFile("bad");
         for (String filename : SKIPPED_BAD_FILES)
         {
             File file = new File(dir, filename);
-            parseSuccessfully(file);
+            parseSuccessfully(file, filename);
         }
     }
 
     //=========================================================================
 
-    private void parseSuccessfully(File file)
+    private void parseSuccessfully(File file, String displayName)
+        throws Exception
     {
-        testFile(file.getPath());
+        Resource resource = resourceHelper.resource(file);
 
-        assertConstraints(file.toString(),
-                          issues.errorsOnly().sizeIs(0));
+        if (resource.getErrors().size() != 0)
+        {
+            String message =
+                "Unexpected errors in " + displayName +
+                ": " + resource.getErrors();
+            Assert.fail(message);
+        }
+
+        List<Issue> validationIssues = validate(resource);
+        if (validationIssues.size() != 0)
+        {
+            String message =
+                    "Unexpected errors in " + displayName +
+                    ": " + validationIssues;
+            Assert.fail(message);
+        }
     }
 
-    private void parseUnsuccessfully(File file)
+    private void parseUnsuccessfully(File file, String displayName)
+        throws Exception
     {
-        try
-        {
-            // Grammar-level errors cause this to throw AssertionError.
-            // Model level errors found by {@class IonValidator} don't throw!
-            testFile(file.getPath());
-        }
-        catch (AssertionError e)
-        {
-            return;
-        }
+        Resource resource = resourceHelper.resource(file);
 
-        // We don't know what the errors will be, just that there should be
-        // at least one.
-        assertConstraints(file.toString(),
-                          issues.errorsOnly().isNotEmpty());
+        if (resource.getErrors().size() == 0)
+        {
+            List<Issue> validationIssues = validate(resource);
+            if (validationIssues.size() == 0)
+            {
+                Assert.fail("No errors were reported in " + displayName);
+            }
+        }
+    }
+
+    private IResourceValidator validator(Resource resource)
+    {
+        URI uri = resource.getURI();
+        IResourceServiceProvider provider =
+            serviceProviderRegistry.getResourceServiceProvider(uri);
+        return provider.getResourceValidator();
+    }
+
+    private List<Issue> validate(Resource resource)
+    {
+        IResourceValidator validator = validator(resource);
+        return validator.validate(resource, CheckMode.ALL, null);
     }
 }

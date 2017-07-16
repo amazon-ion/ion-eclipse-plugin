@@ -1,5 +1,3 @@
-blank.ion
-empty.ion
 eolCommentCr.ion
 utf16.ion
 utf32.ion
