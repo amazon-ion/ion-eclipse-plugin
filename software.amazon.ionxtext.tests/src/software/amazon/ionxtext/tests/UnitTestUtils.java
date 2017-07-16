@@ -1,4 +1,4 @@
-/* Copyright 2012-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+/* Copyright 2012-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -65,13 +65,13 @@ public class UnitTestUtils
     };
 
     public static final String[] SKIPPED_GOOD_FILES =
-        loadSkipListFrom(IonTestsParsingTest.class, "skipped-good-files.txt");
+        loadSkipListFrom(UnitTestUtils.class, "skipped-good-files.txt");
 
     public static final FilenameFilter IS_NOT_SKIPPED_GOOD_FILE =
         new FileIsNot(SKIPPED_GOOD_FILES);
 
     public static final String[] SKIPPED_BAD_FILES =
-        loadSkipListFrom(IonTestsParsingTest.class, "skipped-bad-files.txt");
+        loadSkipListFrom(UnitTestUtils.class, "skipped-bad-files.txt");
 
     public static final FilenameFilter IS_NOT_SKIPPED_BAD_FILE =
         new FileIsNot(SKIPPED_BAD_FILES);
@@ -148,6 +148,27 @@ public class UnitTestUtils
     public static File getTestdataFile(String path)
     {
         return new File(ION_TESTS_IONTESTDATA_PATH, path);
+    }
+
+
+    /**
+     * Gets a selection of {@link File}s contained in the test data suite.
+     *
+     * @param prefix
+     *            identifies a directory relative to the testdata directory.
+     * @param paths
+     *            is an array of paths relative to the prefix directory.
+     */
+    public static File[] getTestdataFiles(String prefix, String... paths)
+    {
+        File dir = getTestdataFile(prefix);
+
+        File[] files = new File[paths.length];
+        for (int i = 0; i < paths.length; i++)
+        {
+            files[i] = new File(dir, paths[i]);
+        }
+        return files;
     }
 
 
